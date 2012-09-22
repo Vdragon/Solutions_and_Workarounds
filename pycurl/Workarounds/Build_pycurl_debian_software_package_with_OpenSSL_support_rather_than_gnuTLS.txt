@@ -1,0 +1,231 @@
+使用the debian way
+	下載pycurl的軟體原始程式碼
+		apt-get source pycurl
+	滿足建構pycurl的軟體依賴特性(software dependency)
+		sudo apt-get build-dep pycurl
+	因為pycurl軟體包裹因為OpenSSL授權問題預設依賴libcurl4-gnutls-dev而非libcurl4-openssl-dev，所以將libcurl4-openssl-dev軟體包裹裝回去
+		sudo apt-get install libcurl4-openssl-dev                                                                                   
+	解開Debian軟體原始碼包裹
+		sudo dpkg-source -x pycurl_7.19.0-4ubuntu3.dsc
+	修改Debian目錄內的control檔案，將gnutls全部替換為openssl
+	change the HAVE_CURL_GNUTLS=1 to HAVE_CURL_OPENSSL=1 in the following file
+		sudo vim debian/patches/10_setup.py.dpatch
+	change the HAVE_CURL_GNUTLS=1 to HAVE_CURL_OPENSSL=1 in the following file
+		sudo vim setup.py
+	修改Debian目錄內的changelog檔案，加入變更紀錄
+	建構Debian二進位軟體包裹
+		Vdragon@Vdragon-SSD01-Ubuntu:~/Build_software/python-pycurl-openssl/pycurl-7.19.0$ sudo dpkg-buildpackage -b
+		dpkg-buildpackage: export CFLAGS from dpkg-buildflags (origin: vendor): -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security
+		dpkg-buildpackage: export CPPFLAGS from dpkg-buildflags (origin: vendor): -D_FORTIFY_SOURCE=2
+		dpkg-buildpackage: export CXXFLAGS from dpkg-buildflags (origin: vendor): -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security
+		dpkg-buildpackage: export FFLAGS from dpkg-buildflags (origin: vendor): -g -O2
+		dpkg-buildpackage: export LDFLAGS from dpkg-buildflags (origin: vendor): -Wl,-Bsymbolic-functions -Wl,-z,relro
+		dpkg-buildpackage: source package pycurl
+		dpkg-buildpackage: source version 7.19.0-4ubuntu3opensslfix
+		dpkg-buildpackage: source changed by Ｖ字龍 | Vdragon <pika1021@gmail.com>
+		dpkg-buildpackage: host architecture i386
+		dpkg-source --before-build pycurl-7.19.0
+		dpkg-source: warning: unknown information field 'Version' in input data in general section of control info file
+		debian/rules clean
+		dpatch  deapply-all  
+		reverting patch 10_setup.py from ./ ... ok.
+		rm -rf patch-stamp patch-stampT debian/patched
+		dh_testdir
+		dh_testroot
+		rm -f build-*
+		for py in 2.7; do \
+								python$py setup.py clean; \
+								python$py-dbg setup.py clean; \
+						done
+		Using curl-config (libcurl 7.22.0)
+		running clean
+		removing 'build/temp.linux-i686-2.7' (and everything under it)
+		Using curl-config (libcurl 7.22.0)
+		running clean
+		removing 'build/temp.linux-i686-2.7-pydebug' (and everything under it)
+		[28535 refs]
+		rm -rf build
+		find -name '*.py[co]' | xargs rm -f
+		dh_clean
+		debian/rules build
+		test -d debian/patched || install -d debian/patched
+		dpatch  apply-all  
+		applying patch 10_setup.py to ./ ... ok.
+		dpatch  cat-all  >>patch-stampT
+		mv -f patch-stampT patch-stamp
+		dh_testdir
+		python2.7 setup.py build
+		Using curl-config (libcurl 7.22.0)
+		running build
+		running build_py
+		creating build
+		creating build/lib.linux-i686-2.7
+		creating build/lib.linux-i686-2.7/curl
+		copying python/curl/__init__.py -> build/lib.linux-i686-2.7/curl
+		running build_ext
+		building 'pycurl' extension
+		creating build/temp.linux-i686-2.7
+		creating build/temp.linux-i686-2.7/src
+		gcc -pthread -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -D_FORTIFY_SOURCE=2 -fPIC -DHAVE_CURL_OPENSSL=1 -DHAVE_CURL_OPENSSL=1 -DHAVE_CURL_OPENSSL=1 -DHAVE_CURL_GNUTLS=1 -DHAVE_CURL_SSL=1 -I/usr/include/python2.7 -c src/pycurl.c -o build/temp.linux-i686-2.7/src/pycurl.o
+		src/pycurl.c: In function 「multi_socket_callback」:
+		src/pycurl.c:2351:9: 警告： variable 「ret」 set but not used [-Wunused-but-set-variable]
+		src/pycurl.c:2355:11: 警告： call to 「_curl_easy_getinfo_err_string」 declared with attribute warning: curl_easy_getinfo expects a pointer to char * for this info [enabled by default]
+		src/pycurl.c: In function 「do_multi_info_read」:
+		src/pycurl.c:2843:15: 警告： call to 「_curl_easy_getinfo_err_string」 declared with attribute warning: curl_easy_getinfo expects a pointer to char * for this info [enabled by default]
+		In function 「util_curl_unsetopt」,
+				inlined from 「do_curl_unsetopt」 at src/pycurl.c:1551:5:
+		src/pycurl.c:1476:9: 警告： call to 「_curl_easy_setopt_err_CURLSH」 declared with attribute warning: curl_easy_setopt expects a CURLSH* argument for this option [enabled by default]
+		gcc -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-Bsymbolic-functions -Wl,-z,relro -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -D_FORTIFY_SOURCE=2 build/temp.linux-i686-2.7/src/pycurl.o -L/usr/lib/i386-linux-gnu -lcurl -lidn -lssl -lcrypto -llber -lldap -lrt -lgssapi_krb5 -lssl -lcrypto -lz -lrtmp -lz -lgnutls -o build/lib.linux-i686-2.7/pycurl.so -Wl,-Bsymbolic-functions -Wl,-z,relro /usr/lib/i386-linux-gnu/libcurl.a -Wl,-Bsymbolic-functions -Wl,-z,relro
+		python2.7-dbg setup.py build
+		Using curl-config (libcurl 7.22.0)
+		running build
+		running build_py
+		creating build/lib.linux-i686-2.7-pydebug
+		creating build/lib.linux-i686-2.7-pydebug/curl
+		copying python/curl/__init__.py -> build/lib.linux-i686-2.7-pydebug/curl
+		running build_ext
+		building 'pycurl' extension
+		creating build/temp.linux-i686-2.7-pydebug
+		creating build/temp.linux-i686-2.7-pydebug/src
+		gcc -pthread -fno-strict-aliasing -g -O0 -Wall -Wstrict-prototypes -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -D_FORTIFY_SOURCE=2 -fPIC -DHAVE_CURL_OPENSSL=1 -DHAVE_CURL_OPENSSL=1 -DHAVE_CURL_OPENSSL=1 -DHAVE_CURL_GNUTLS=1 -DHAVE_CURL_SSL=1 -I/usr/include/python2.7_d -c src/pycurl.c -o build/temp.linux-i686-2.7-pydebug/src/pycurl.o
+		src/pycurl.c: In function 「multi_socket_callback」:
+		src/pycurl.c:2351:9: 警告： variable 「ret」 set but not used [-Wunused-but-set-variable]
+		src/pycurl.c:2355:11: 警告： call to 「_curl_easy_getinfo_err_string」 declared with attribute warning: curl_easy_getinfo expects a pointer to char * for this info [enabled by default]
+		src/pycurl.c: In function 「do_multi_info_read」:
+		src/pycurl.c:2843:15: 警告： call to 「_curl_easy_getinfo_err_string」 declared with attribute warning: curl_easy_getinfo expects a pointer to char * for this info [enabled by default]
+		In function 「util_curl_unsetopt」,
+				inlined from 「do_curl_unsetopt」 at src/pycurl.c:1551:5:
+		src/pycurl.c:1476:9: 警告： call to 「_curl_easy_setopt_err_CURLSH」 declared with attribute warning: curl_easy_setopt expects a CURLSH* argument for this option [enabled by default]
+		gcc -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-Bsymbolic-functions -Wl,-z,relro -g -O2 -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -D_FORTIFY_SOURCE=2 build/temp.linux-i686-2.7-pydebug/src/pycurl.o -L/usr/lib/i386-linux-gnu -lcurl -lidn -lssl -lcrypto -llber -lldap -lrt -lgssapi_krb5 -lssl -lcrypto -lz -lrtmp -lz -lgnutls -o build/lib.linux-i686-2.7-pydebug/pycurl_d.so -Wl,-Bsymbolic-functions -Wl,-z,relro /usr/lib/i386-linux-gnu/libcurl.a -Wl,-Bsymbolic-functions -Wl,-z,relro
+		[32487 refs]
+		set -e ;\
+						for test in "tests/test_internals.py" "tests/test_memleak.py" ; do \
+								PYTHONPATH=`ls -d /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/build/lib.*-*-2.7` \
+										python2.7 $test; \
+						done
+		Python 2.7.3 (default, Aug  1 2012, 05:16:07) 
+		[GCC 4.6.3]
+		PycURL libcurl/7.22.0 OpenSSL/1.0.1 zlib/1.2.3.4 libidn/1.23 librtmp/2.3 (compiled against 0x71600)
+		PycURL version info (3, '7.22.0', 464384, 'i686-pc-linux-gnu', 50749, 'OpenSSL/1.0.1', 0, '1.2.3.4', ('dict', 'file', 'ftp', 'ftps', 'gopher', 'http', 'https', 'imap', 'imaps', 'ldap', 'pop3', 'pop3s', 'rtmp', 'rtsp', 'smtp', 'smtps', 'telnet', 'tftp'), None, 0, '1.23')
+			build/lib.linux-i686-2.7/pycurl.so, compiled Aug 30 2012 17:30:49
+		gc: collecting generation 2...
+		gc: objects in each generation: 0 0 4025
+		gc: done, 0.0012s elapsed.
+		Tracked objects: 4025
+		gc: collecting generation 2...
+		gc: objects in each generation: 0 0 4025
+		gc: collectable <pycurl.Curl 0x8ab5bfc>
+		gc: collectable <pycurl.CurlMulti 0x8a952a4>
+		gc: collectable <dict 0x407bf1c4>
+		gc: collectable <dict 0x407bf24c>
+		gc: done, 4 unreachable, 0 uncollectable, 0.0013s elapsed.
+		Tracked objects: 4021
+		All tests passed.
+		gc: collecting generation 2...
+		gc: objects in each generation: 0 0 4015
+		gc: done, 0.0012s elapsed.
+		Python 2.7.3 (default, Aug  1 2012, 05:16:07) 
+		[GCC 4.6.3]
+		PycURL libcurl/7.22.0 OpenSSL/1.0.1 zlib/1.2.3.4 libidn/1.23 librtmp/2.3 (compiled against 0x71600)
+			/home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/build/lib.linux-i686-2.7/pycurl.so, compiled Aug 30 2012 17:30:49
+		gc: collecting generation 2...
+		gc: objects in each generation: 0 0 3387
+		gc: done, 0.0008s elapsed.
+		Tracked objects: 3387
+		Tracked objects: 3489
+		Tracked objects: 3489
+		Tracked objects: 3387
+		gc: collecting generation 2...
+		gc: objects in each generation: 0 0 3387
+		gc: done, 0.0009s elapsed.
+		Tracked objects: 3387
+		gc: collecting generation 2...
+		gc: objects in each generation: 0 0 3385
+		gc: done, 0.0008s elapsed.
+		touch build-python2.7
+		touch build-stamp
+		debian/rules binary
+		dh_testdir
+		dh_testroot
+		dh_clean -k
+		dh_clean: dh_clean -k is deprecated; use dh_prep instead
+		dh_installdirs
+		for py in 2.7; do \
+								python$py setup.py install --root=/home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl --install-layout=deb; \
+								python$py-dbg setup.py install --root=/home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl-dbg --install-layout=deb; \
+						done
+		Using curl-config (libcurl 7.22.0)
+		running install
+		running build
+		running build_py
+		running build_ext
+		running install_lib
+		creating /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl/usr/lib
+		creating /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl/usr/lib/python2.7
+		creating /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl/usr/lib/python2.7/dist-packages
+		creating /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl/usr/lib/python2.7/dist-packages/curl
+		copying build/lib.linux-i686-2.7/curl/__init__.py -> /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl/usr/lib/python2.7/dist-packages/curl
+		copying build/lib.linux-i686-2.7/pycurl.so -> /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl/usr/lib/python2.7/dist-packages
+		byte-compiling /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl/usr/lib/python2.7/dist-packages/curl/__init__.py to __init__.pyc
+		running install_egg_info
+		Writing /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl/usr/lib/python2.7/dist-packages/pycurl-7.19.0.egg-info
+		Using curl-config (libcurl 7.22.0)
+		running install
+		running build
+		running build_py
+		running build_ext
+		running install_lib
+		creating /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl-dbg/usr
+		creating /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl-dbg/usr/lib
+		creating /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl-dbg/usr/lib/python2.7
+		creating /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl-dbg/usr/lib/python2.7/dist-packages
+		creating /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl-dbg/usr/lib/python2.7/dist-packages/curl
+		copying build/lib.linux-i686-2.7-pydebug/curl/__init__.py -> /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl-dbg/usr/lib/python2.7/dist-packages/curl
+		copying build/lib.linux-i686-2.7-pydebug/pycurl_d.so -> /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl-dbg/usr/lib/python2.7/dist-packages
+		byte-compiling /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl-dbg/usr/lib/python2.7/dist-packages/curl/__init__.py to __init__.pyc
+		running install_egg_info
+		Writing /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl-dbg/usr/lib/python2.7/dist-packages/pycurl-7.19.0.egg-info
+		[36839 refs]
+		rm -rf /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl-dbg/usr/lib/python*/*-packages/curl
+		rm -f /home/Vdragon/Build_software/python-pycurl-openssl/pycurl-7.19.0/debian/python-pycurl-dbg/usr/lib/python*/*-packages/pycurl-*.egg-info
+		dh_testdir
+		dh_testroot
+		cp -a doc/*.html debian/python-pycurl/usr/share/doc/python-pycurl/html
+		dh_installdocs -a -A TODO
+		dh_installexamples -a -A examples/* 
+		dh_installchangelogs -a ChangeLog
+		dh_python2 -a
+		dh_strip -ppython-pycurl --dbg-package=python-pycurl-dbg
+		rm -rf debian/python-pycurl-dbg/usr/share/doc/python-pycurl-dbg
+		ln -s python-pycurl debian/python-pycurl-dbg/usr/share/doc/python-pycurl-dbg
+		dh_compress -a -X.py
+		dh_fixperms -a
+		dh_installdeb -a
+		dh_shlibdeps -a
+		dpkg-shlibdeps: warning: dependency on libpthread.so.0 could be avoided if "debian/python-pycurl/usr/lib/python2.7/dist-packages/pycurl.so" were not uselessly linked against it (they use none of its symbols).
+		dpkg-shlibdeps: warning: dependency on libpthread.so.0 could be avoided if "debian/python-pycurl-dbg/usr/lib/python2.7/dist-packages/pycurl_d.so" were not uselessly linked against it (they use none of its symbols).
+		sed -i '/shlibs:Depends/s,\(libcurl[0-9]*-gnutls (>= \)[^)]*\().*\),\17.22.0\2,' debian/python-pycurl*.substvars
+		dh_gencontrol -a
+		dpkg-gencontrol: warning: unknown information field 'Version' in input data in general section of control info file
+		dpkg-gencontrol: warning: package python-pycurl: unused substitution variable ${python:Versions}
+		dpkg-gencontrol: warning: unknown information field 'Version' in input data in general section of control info file
+		dpkg-gencontrol: warning: package python-pycurl-dbg: unused substitution variable ${python:Versions}
+		dpkg-gencontrol: warning: package python-pycurl-dbg: unused substitution variable ${python:Provides}
+		dpkg-gencontrol: warning: package python-pycurl-dbg: unused substitution variable ${python:Depends}
+		dh_md5sums -a
+		dh_builddeb -a
+		dpkg-deb: warning: 'debian/python-pycurl/DEBIAN/control' contains user-defined field 'Original-Maintainer'
+		dpkg-deb: warning: ignoring 1 warning about the control file(s)
+
+		dpkg-deb：正把套件 `python-pycurl' 編譯為 `../python-pycurl_7.19.0-4ubuntu3opensslfix_i386.deb'。
+		dpkg-deb: warning: 'debian/python-pycurl-dbg/DEBIAN/control' contains user-defined field 'Original-Maintainer'
+		dpkg-deb: warning: ignoring 1 warning about the control file(s)
+
+		dpkg-deb：正把套件 `python-pycurl-dbg' 編譯為 `../python-pycurl-dbg_7.19.0-4ubuntu3opensslfix_i386.deb'。
+		dpkg-genchanges -b >../pycurl_7.19.0-4ubuntu3opensslfix_i386.changes
+		dpkg-genchanges: warning: unknown information field 'Version' in input data in general section of control info file
+		dpkg-genchanges: binary-only upload - not including any source code
+		dpkg-source --after-build pycurl-7.19.0
+		dpkg-source: warning: unknown information field on of control info file
+		dpkg-buildpackage: binary only upload (no source
+		Vdragon@Vdragon-SSD01-Ubuntu:~/Build_software/python-pycurl-openssl/pycurl-7.19.0$

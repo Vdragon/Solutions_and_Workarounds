@@ -1,0 +1,98 @@
+使用the debian way
+	下載Git版本控制系統的原始程式碼
+		Vdragon@Vdragon-SSD01-Ubuntu:~/Build_software/Git$ apt-get source git
+		正在讀取套件清單... 完成
+		正在重建相依關係          
+		正在讀取狀態資料... 完成
+		請注意：'git' 套件是在下列位置被 'Git' 版本控制系統所維護的：
+		http://smarden.org/git/git.git/
+		需要下載 4,530 kB 的原始套件檔。
+		下載:1 http://ppa.launchpad.net/git-core/ppa/ubuntu/ precise/main git 1:1.7.11.3-0ppa1~precise1 (tar) [4,018 kB]
+		下載:2 http://ppa.launchpad.net/git-core/ppa/ubuntu/ precise/main git 1:1.7.11.3-0ppa1~precise1 (diff) [509 kB]
+		下載:3 http://ppa.launchpad.net/git-core/ppa/ubuntu/ precise/main git 1:1.7.11.3-0ppa1~precise1 (dsc) [2,527 B]
+		取得 4,530 kB 用了 26秒 (169 kB/s)                                                           
+		gpgv: 由 2012年07月24日 (週二) 03時02分59秒 CST 建立的簽章, 使用 RSA 金鑰 ID 4F16F73A
+		gpgv: 無法檢查簽章: 找不到公鑰
+		dpkg-source: warning: failed to verify signature on ./git_1.7.11.3-0ppa1~precise1.dsc
+		dpkg-source: info: extracting git in git-1.7.11.3
+		dpkg-source: info: unpacking git_1.7.11.3.orig.tar.gz
+		dpkg-source: info: applying git_1.7.11.3-0ppa1~precise1.diff.gz
+		Vdragon@Vdragon-SSD01-Ubuntu:~/Build_software/Git$
+	滿足建構Git版本控制系統的軟體依賴特性(software dependency)
+		Vdragon@Vdragon-SSD01-Ubuntu:~/Build_software/Git/git-1.7.11.3$ sudo apt-get build-dep git
+		正在讀取套件清單... 完成
+		正在重建相依關係          
+		正在讀取狀態資料... 完成
+		下列套件將會被【移除】：
+			libcurl4-openssl-dev
+		下列【新】套件將會被安裝：
+			libcurl4-gnutls-dev
+		升級 0 個，新安裝 1 個，移除 1 個，有 8 個未被升級。
+		需要下載 0 B/1,037 kB 的套件檔。
+		此操作完成之後，會空出 20.5 kB 的磁碟空間。
+		是否繼續進行 [Y/n]？Y
+		（正在讀取資料庫 ... 288028 files and directories currently installed.)
+		正在移除 libcurl4-openssl-dev ...
+		正在進行 man-db 的觸發程式 ...
+		正在進行 doc-base 的觸發程式 ...
+		Processing 1 removed doc-base file...
+		Registering documents with scrollkeeper...
+		Selecting previously unselected package libcurl4-gnutls-dev.
+		（正在讀取資料庫 ... 287779 files and directories currently installed.)
+		正在解開 libcurl4-gnutls-dev （從 .../libcurl4-gnutls-dev_7.22.0-3ubuntu4_i386.deb）...
+		正在進行 doc-base 的觸發程式 ...
+		Processing 1 added doc-base file...
+		Registering documents with scrollkeeper...
+		正在進行 man-db 的觸發程式 ...
+		正在設定 libcurl4-gnutls-dev (7.22.0-3ubuntu4) ...
+		localepurge: Disk space freed in /usr/share/locale: 0 KiB
+		localepurge: Disk space freed in /usr/share/man: 0 KiB
+
+		localepurge: Disk space freed in /usr/share/gnome/help: 0 KiB
+		localepurge: Disk space freed in /usr/share/omf: 0 KiB
+		localepurge: Disk space freed in /usr/share/doc/kde/HTML: 0 KiB
+
+		Total disk space freed by localepurge: 0 KiB
+
+		Vdragon@Vdragon-SSD01-Ubuntu:~/Build_software/Git/git-1.7.11.3$ 
+	因為git軟體包裹因為OpenSSL授權問題預設依賴libcurl4-gnutls-dev而非libcurl4-openssl-dev，所以再將libcurl4-openssl-dev軟體包裹裝回去
+		Vdragon@Vdragon-SSD01-Ubuntu:~/Build_software/Git/git-1.7.11.3$ sudo apt-get install libcurl4-openssl-dev                                                                                   
+		正在讀取套件清單... 完成                                                                      
+		正在重建相依關係                                                                              
+		正在讀取狀態資料... 完成                                                                      
+		建議套件：
+			libcurl3-dbg
+		下列套件將會被【移除】：
+			libcurl4-gnutls-dev
+		下列【新】套件將會被安裝：
+			libcurl4-openssl-dev
+		升級 0 個，新安裝 1 個，移除 1 個，有 8 個未被升級。
+		需要下載 0 B/1,046 kB 的套件檔。
+		此操作完成之後，會多佔用 20.5 kB 的磁碟空間。
+		是否繼續進行 [Y/n]？Y
+		（正在讀取資料庫 ... 288031 files and directories currently installed.)
+		正在移除 libcurl4-gnutls-dev ...
+		正在進行 man-db 的觸發程式 ...
+		正在進行 doc-base 的觸發程式 ...
+		Processing 1 removed doc-base file...
+		Registering documents with scrollkeeper...
+		Selecting previously unselected package libcurl4-openssl-dev.
+		（正在讀取資料庫 ... 287779 files and directories currently installed.)
+		正在解開 libcurl4-openssl-dev （從 .../libcurl4-openssl-dev_7.22.0-3ubuntu4_i386.deb）...
+		正在進行 doc-base 的觸發程式 ...
+		Processing 1 added doc-base file...
+		Registering documents with scrollkeeper...
+		正在進行 man-db 的觸發程式 ...
+		正在設定 libcurl4-openssl-dev (7.22.0-3ubuntu4) ...
+		localepurge: Disk space freed in /usr/share/locale: 0 KiB
+		localepurge: Disk space freed in /usr/share/man: 0 KiB
+		localepurge: Disk space freed in /usr/share/gnome/help: 0 KiB
+		localepurge: Disk space freed in /usr/share/omf: 0 KiB
+		localepurge: Disk space freed in /usr/share/doc/kde/HTML: 0 KiB
+
+		Total disk space freed by localepurge: 0 KiB
+
+		Vdragon@Vdragon-SSD01-Ubuntu:~/Build_software/Git/git-1.7.11.3$ 
+	解開Debian軟體原始碼包裹
+		sudo dpkg-source -x 
+	修改各個子目錄下Debian目錄內的control檔案，將gnutls全部替換為openssl
